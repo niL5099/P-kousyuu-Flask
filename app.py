@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -6,50 +6,56 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///todo.db"
 db = SQLAlchemy(app)
 
+
 class Todo(db.Model):
- id = db.Column(db.Integer, primary_key=True)
- title = db.Column(db.String(100))
- details = db.Column(db.String(100))
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    details = db.Column(db.String(100))
 
 
 # Todoリストを画面に表示させる
 @app.route("/")
 def index():
- tasks = Todo.query.all()
- return render_template("index.html", tasks=tasks)
+    tasks = Todo.query.all()
+    return render_template("index.html", tasks=tasks)
+
 
 # Todoの追加
-@app.route("/create", methods=["POST"])
+@app.route("/create", methods=["GET", "POST"])
 def create():
- title = request.form.get("title")
- details = request.form.get("details")
- new_task = Todo(title=title, details=details)
- db.session.add(new_task)
- db.session.commit()
- return redirect("/")
+    if request.method == "GET":
+        return render_template("create.html")
+    else:
+        title = request.form.get("title")
+        details = request.form.get("details")
+        new_task = Todo(title=title, details=details)
+        db.session.add(new_task)
+        db.session.commit()
+        return redirect("/")
+
 
 # Todoの削除
-@app.route('/delete/<int:id>')
+@app.route("/delete/<int:id>")
 def delete(id):
- delete_task = Todo.query.get(id)
- db.session.delete(delete_task)
- db.session.commit()
- return redirect('/')
+    delete_task = Todo.query.get(id)
+    db.session.delete(delete_task)
+    db.session.commit()
+    return redirect("/")
+
 
 # Todoの編集
-@app.route('/update/<int:id>', methods=['GET', 'POST'])
+@app.route("/update/<int:id>", methods=["GET", "POST"])
 def update(id):
- task = Todo.query.get(id)
- if request.method == 'GET':
-  return render_template('update.html', task=task)
- else:
-  task.title = request.form.get('title')
-  task.details = request.form.get('details')
+    task = Todo.query.get(id)
+    if request.method == "GET":
+        return render_template("update.html", task=task)
+    else:
+        task.title = request.form.get("title")
+        task.details = request.form.get("details")
+        db.session.commit()
+        return redirect("/")
 
-  db.session.commit()
-  return redirect('/')
- 
 
 # アプリ実行処理
 if __name__ == "__main__":
- app.run(debug=True)
+    app.run(debug=True)

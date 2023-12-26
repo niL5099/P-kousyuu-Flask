@@ -1,21 +1,29 @@
 {% extends 'base.html' %}
 
 {% block body %}
-<h1>トップページ</h1>
-<div class="form">
-    <form action="/create" method="POST">
-    <label for="title">Title</label>
-    <input type="text" name="title" />
-    <label for="details">Details</label>
-    <input type="text" name="details" />
-    <input type="submit" value="Create" />
-    </form>
-</div>
+<!--topページ上部-->
+<nav class="navbar" style="background-color: #e3f2fd;">
+    <div class="container-fluid">
+        <a class="navbar-brand pl-3" href="/" style="font-size: 2rem">Todo List</a>
+        <a class="btn btn-info btn-lg m-5" href="/create" role="button">Create New Task</a>
+    </div>
+</nav><br>
 
-{% for task in tasks %}
- <h2>タイトル : {{ task.title }}</h2>
- <p>詳細 : {{ task.details }}</p>
- <a href="/update/{{ task.id }}" role="button">Update</a>
- <a href="/delete/{{ task.id }}" role="button">Delete</a>
-{% endfor %}
+<!--タスク一覧-->
+<div class="container text-center">
+    <div class="row row-cols-auto">
+        {% for task in tasks %}
+        <div class="col-4">
+            <div class="card text-bg-light w-80 border-info mb-3" style="margin: auto;">
+                <div class="card-body">
+                    <h2 class="card-title">{{ task.title }}</h2>
+                    <p>詳細 : {{ task.details }}</p>
+                    <a class="btn btn-success btn-sm" href="/update/{{ task.id }}" role="button">Update</a>
+                    <a class="btn btn-danger btn-sm" href="/delete/{{ task.id }}" role="button">Delete</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
