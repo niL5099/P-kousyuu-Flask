@@ -12,11 +12,13 @@ class Todo(db.Model):
  details = db.Column(db.String(100))
 
 
+# Todoリストを画面に表示させる
 @app.route("/")
 def index():
  tasks = Todo.query.all()
  return render_template("index.html", tasks=tasks)
 
+# Todoの追加
 @app.route("/create", methods=["POST"])
 def create():
  title = request.form.get("title")
@@ -26,6 +28,7 @@ def create():
  db.session.commit()
  return redirect("/")
 
+# Todoの削除
 @app.route('/delete/<int:id>')
 def delete(id):
  delete_task = Todo.query.get(id)
@@ -33,5 +36,20 @@ def delete(id):
  db.session.commit()
  return redirect('/')
 
+# Todoの編集
+@app.route('/update/<int:id>', methods=['GET', 'POST'])
+def update(id):
+ task = Todo.query.get(id)
+ if request.method == 'GET':
+  return render_template('update.html', task=task)
+ else:
+  task.title = request.form.get('title')
+  task.details = request.form.get('details')
+
+  db.session.commit()
+  return redirect('/')
+ 
+
+# アプリ実行処理
 if __name__ == "__main__":
  app.run(debug=True)
